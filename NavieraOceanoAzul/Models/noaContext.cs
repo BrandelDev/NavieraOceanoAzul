@@ -18,17 +18,10 @@ namespace NavieraOceanoAzul.Models
 
         public virtual DbSet<Barco> Barcos { get; set; } = null!;
         public virtual DbSet<Cliente> Clientes { get; set; } = null!;
-        public virtual DbSet<Habitacione> Habitaciones { get; set; } = null!;
+        public virtual DbSet<Habitacion> Habitaciones { get; set; } = null!;
         public virtual DbSet<Tiquete> Tiquetes { get; set; } = null!;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseMySql("server=localhost;port=3306;database=noa;uid=root;password=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("5.7.44-mysql"));
-            }
-        }
+      
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -44,7 +37,7 @@ namespace NavieraOceanoAzul.Models
 
                 entity.Property(e => e.Idbarco)
                     .HasColumnType("int(11)")
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("idbarco");
 
                 entity.Property(e => e.CapacidadCarga)
@@ -73,7 +66,7 @@ namespace NavieraOceanoAzul.Models
 
                 entity.Property(e => e.Idcliente)
                     .HasColumnType("int(11)")
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("idcliente");
 
                 entity.Property(e => e.Contrasena)
@@ -101,7 +94,7 @@ namespace NavieraOceanoAzul.Models
                     .HasColumnName("segundo_nombre");
             });
 
-            modelBuilder.Entity<Habitacione>(entity =>
+            modelBuilder.Entity<Habitacion>(entity =>
             {
                 entity.HasKey(e => e.Idhabitacion)
                     .HasName("PRIMARY");
@@ -112,7 +105,7 @@ namespace NavieraOceanoAzul.Models
 
                 entity.Property(e => e.Idhabitacion)
                     .HasColumnType("int(11)")
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("idhabitacion");
 
                 entity.Property(e => e.Capacidad)
@@ -150,7 +143,7 @@ namespace NavieraOceanoAzul.Models
 
                 entity.Property(e => e.Idtiquete)
                     .HasColumnType("int(11)")
-                    .ValueGeneratedNever()
+                    .ValueGeneratedOnAdd()
                     .HasColumnName("idtiquete");
 
                 entity.Property(e => e.FechaEmision)

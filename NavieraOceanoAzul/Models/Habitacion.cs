@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NavieraOceanoAzul.Models
 {
-    public partial class Habitacione
+    public partial class Habitacion
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Idhabitacion { get; set; }
         public int? Idbarco { get; set; }
         public int? NumeroHabitacion { get; set; }

@@ -1,107 +1,76 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NavieraOceanoAzul.DTO;
+using NavieraOceanoAzul.Models;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using NavieraOceanoAzul.Models;
 
 namespace NavieraOceanoAzul.Controllers
 {
-    [Route("api/controller")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class BarcoController : Controller
+    public class BarcoController : ControllerBase
     {
         private readonly noaContext _context;
+        private readonly IMapper _mapper;
 
-        public BarcoController(noaContext context)
+        public BarcoController(noaContext context, IMapper mapper )
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        // GET: Barco
-        [Route("ListShip")]
+        // GET: api/barco
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> GetAllBarcos()
         {
-              return _context.Barcos != null ? 
-                          View(await _context.Barcos.ToListAsync()) :
-                          Problem("Entity set 'noaContext.Barcos'  is null.");
+            return _context.Barcos != null ?
+                        Ok(await _context.Barcos.ToListAsync()) :
+                        Problem("Entity set 'noaContext.Barcos'  is null.");
         }
-        [Route("ListShipByID/{id}")]
-        [HttpGet]
-        // GET: Barco/Details/5
-        public async Task<IActionResult> Details(int? id)
+
+        // GET: api/barco/Details/5
+        [HttpGet("Details/{id}")]
+        public async Task<IActionResult> GetBarco(int? id)
         {
             if (id == null || _context.Barcos == null)
             {
                 return NotFound();
             }
 
-            var barco = await _context.Barcos
-                .FirstOrDefaultAsync(m => m.Idbarco == id);
+            var barco = await _context.Barcos.FirstOrDefaultAsync(m => m.Idbarco == id);
             if (barco == null)
             {
                 return NotFound();
             }
 
-            return View(barco);
+            return Ok(barco);
         }
 
-        // GET: Barco/Create
- 
-        public IActionResult Create()
+        // POST: api/barco/Create
+        [HttpPost("Create")]
+        public async Task<IActionResult> CreateBarco([FromBody] BarcoDTO barcoDTO)
         {
-            return View();
-        }
+            var barco = _mapper.Map<Barco>(barcoDTO);
 
-        // POST: Barco/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Route("CreateShip")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Idbarco,CapacidadPersonas,CapacidadCarga,NombreBarco,Idtiquete")] Barco barco)
-        {
             if (ModelState.IsValid)
             {
                 _context.Add(barco);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return CreatedAtAction(nameof(GetBarco), new { id = barco.Idbarco }, barco);
             }
-            return View(barco);
+            return BadRequest(ModelState);
         }
 
-        // GET: Barco/Edit/5
-
-        public async Task<IActionResult> Edit(int? id)
+        // PUT: api/barco/Edit/5
+        [HttpPut("Edit/{id}")]
+        public async Task<IActionResult> EditBarco(int id, [FromBody] BarcoDTO barcoDto)
         {
-            if (id == null || _context.Barcos == null)
-            {
-                return NotFound();
-            }
-
-            var barco = await _context.Barcos.FindAsync(id);
-            if (barco == null)
-            {
-                return NotFound();
-            }
-            return View(barco);
-        }
-
-        // POST: Barco/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-        [Route("EditShip/{id}")]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Idbarco,CapacidadPersonas,CapacidadCarga,NombreBarco,Idtiquete")] Barco barco)
-        {
+            var barco = _mapper.Map<Barco>(barcoDto);
             if (id != barco.Idbarco)
             {
-                return NotFound();
+                return BadRequest();
             }
 
             if (ModelState.IsValid)
@@ -122,52 +91,30 @@ namespace NavieraOceanoAzul.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return NoContent();
             }
-            return View(barco);
+            return BadRequest(ModelState);
         }
 
-        // GET: Barco/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // DELETE: api/barco/Delete/5
+        [HttpDelete("Delete/{id}")]
+        public async Task<IActionResult> DeleteBarco(int id)
         {
-            if (id == null || _context.Barcos == null)
-            {
-                return NotFound();
-            }
-
-            var barco = await _context.Barcos
-                .FirstOrDefaultAsync(m => m.Idbarco == id);
+            var barco = await _context.Barcos.FindAsync(id);
             if (barco == null)
             {
                 return NotFound();
             }
 
-            return View(barco);
-        }
-
-        // POST: Barco/Delete/5
-        [Route("DeleteShip/{id}")]
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Barcos == null)
-            {
-                return Problem("Entity set 'noaContext.Barcos'  is null.");
-            }
-            var barco = await _context.Barcos.FindAsync(id);
-            if (barco != null)
-            {
-                _context.Barcos.Remove(barco);
-            }
-            
+            _context.Barcos.Remove(barco);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return NoContent();
         }
 
         private bool BarcoExists(int id)
         {
-          return (_context.Barcos?.Any(e => e.Idbarco == id)).GetValueOrDefault();
+            return _context.Barcos.Any(e => e.Idbarco == id);
         }
     }
 }

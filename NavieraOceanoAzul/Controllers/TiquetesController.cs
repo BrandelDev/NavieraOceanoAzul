@@ -1,173 +1,91 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NavieraOceanoAzul.DTO;
+using NavieraOceanoAzul.Models;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using NavieraOceanoAzul.Models;
 
 namespace NavieraOceanoAzul.Controllers
 {
-    public class TiquetesController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TiquetesController : ControllerBase
     {
         private readonly noaContext _context;
-
-        public TiquetesController(noaContext context)
+        private readonly IMapper _mapper;
+        public TiquetesController(noaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        // GET: Tiquetes
-        public async Task<IActionResult> Index()
+        // GET: api/Tiquetes
+        [HttpGet]
+        public async Task<IActionResult> GetAllTiquetes()
         {
-            var noaContext = _context.Tiquetes.Include(t => t.IdbarcoNavigation).Include(t => t.IdclienteNavigation);
-            return View(await noaContext.ToListAsync());
-        }
-
-        // GET: Tiquetes/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Tiquetes == null)
+            var tiquetes = await _context.Tiquetes.ToListAsync();
+            if (tiquetes == null || tiquetes.Count == 0)
             {
                 return NotFound();
             }
-
-            var tiquete = await _context.Tiquetes
-                .Include(t => t.IdbarcoNavigation)
-                .Include(t => t.IdclienteNavigation)
-                .FirstOrDefaultAsync(m => m.Idtiquete == id);
-            if (tiquete == null)
-            {
-                return NotFound();
-            }
-
-            return View(tiquete);
+            return Ok(tiquetes);
         }
 
-        // GET: Tiquetes/Create
-        public IActionResult Create()
+        // GET: api/Tiquetes/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetTiquete(int id)
         {
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco");
-            ViewData["Idcliente"] = new SelectList(_context.Clientes, "Idcliente", "Idcliente");
-            return View();
-        }
-
-        // POST: Tiquetes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Idtiquete,PuertoDestino,PuertoOrigen,Idcliente,FechaEmision,FechaSalida,Precio,Idbarco,FechaLlegada")] Tiquete tiquete)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(tiquete);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco", tiquete.Idbarco);
-            ViewData["Idcliente"] = new SelectList(_context.Clientes, "Idcliente", "Idcliente", tiquete.Idcliente);
-            return View(tiquete);
-        }
-
-        // GET: Tiquetes/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.Tiquetes == null)
-            {
-                return NotFound();
-            }
-
             var tiquete = await _context.Tiquetes.FindAsync(id);
             if (tiquete == null)
             {
                 return NotFound();
             }
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco", tiquete.Idbarco);
-            ViewData["Idcliente"] = new SelectList(_context.Clientes, "Idcliente", "Idcliente", tiquete.Idcliente);
-            return View(tiquete);
+            return Ok(tiquete);
         }
 
-        // POST: Tiquetes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: api/Tiquetes
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Idtiquete,PuertoDestino,PuertoOrigen,Idcliente,FechaEmision,FechaSalida,Precio,Idbarco,FechaLlegada")] Tiquete tiquete)
+        public async Task<IActionResult> CreateTiquete([FromBody] TiqueteDTO tiqueteDto)
         {
+            var tiquete  = _mapper.Map<Tiquete>(tiqueteDto);
+
+            if (ModelState.IsValid)
+            {
+                _context.Tiquetes.Add(tiquete);
+                await _context.SaveChangesAsync();
+                return CreatedAtAction(nameof(GetTiquete), new { id = tiquete.Idtiquete }, tiquete);
+            }
+            return BadRequest(ModelState);
+        }
+
+        // PUT: api/Tiquetes/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTiquete(int id, [FromBody] Tiquete tiqueteDto)
+        {
+            var tiquete = _mapper.Map<Tiquete>(tiqueteDto);
+
             if (id != tiquete.Idtiquete)
             {
-                return NotFound();
+                return BadRequest();
             }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(tiquete);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!TiqueteExists(tiquete.Idtiquete))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco", tiquete.Idbarco);
-            ViewData["Idcliente"] = new SelectList(_context.Clientes, "Idcliente", "Idcliente", tiquete.Idcliente);
-            return View(tiquete);
+            _context.Entry(tiquete).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
-        // GET: Tiquetes/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // DELETE: api/Tiquetes/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTiquete(int id)
         {
-            if (id == null || _context.Tiquetes == null)
-            {
-                return NotFound();
-            }
-
-            var tiquete = await _context.Tiquetes
-                .Include(t => t.IdbarcoNavigation)
-                .Include(t => t.IdclienteNavigation)
-                .FirstOrDefaultAsync(m => m.Idtiquete == id);
+            var tiquete = await _context.Tiquetes.FindAsync(id);
             if (tiquete == null)
             {
                 return NotFound();
             }
-
-            return View(tiquete);
-        }
-
-        // POST: Tiquetes/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Tiquetes == null)
-            {
-                return Problem("Entity set 'noaContext.Tiquetes'  is null.");
-            }
-            var tiquete = await _context.Tiquetes.FindAsync(id);
-            if (tiquete != null)
-            {
-                _context.Tiquetes.Remove(tiquete);
-            }
-            
+            _context.Tiquetes.Remove(tiquete);
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool TiqueteExists(int id)
-        {
-          return (_context.Tiquetes?.Any(e => e.Idtiquete == id)).GetValueOrDefault();
+            return NoContent();
         }
     }
 }

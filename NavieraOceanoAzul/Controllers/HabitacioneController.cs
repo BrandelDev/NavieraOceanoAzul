@@ -1,167 +1,90 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NavieraOceanoAzul.DTO;
+using NavieraOceanoAzul.Models;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using NavieraOceanoAzul.Models;
 
 namespace NavieraOceanoAzul.Controllers
 {
-    public class HabitacioneController : Controller
+    [Route("api/[controller]")]
+    [ApiController]
+    public class HabitacionController : ControllerBase
     {
         private readonly noaContext _context;
+        private readonly IMapper _mapper;
 
-        public HabitacioneController(noaContext context)
+        public HabitacionController(noaContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        // GET: Habitacione
-        public async Task<IActionResult> Index()
+        // GET: api/Habitacione
+        [HttpGet]
+        public async Task<IActionResult> GetAllHabitaciones()
         {
-            var noaContext = _context.Habitaciones.Include(h => h.IdbarcoNavigation);
-            return View(await noaContext.ToListAsync());
-        }
-
-        // GET: Habitacione/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null || _context.Habitaciones == null)
+            var habitaciones = await _context.Habitaciones.ToListAsync();
+            if (habitaciones == null || habitaciones.Count == 0)
             {
                 return NotFound();
             }
+            return Ok(habitaciones);
+        }
 
-            var habitacione = await _context.Habitaciones
-                .Include(h => h.IdbarcoNavigation)
-                .FirstOrDefaultAsync(m => m.Idhabitacion == id);
-            if (habitacione == null)
+        // GET: api/Habitacione/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetHabitacion(int id)
+        {
+            var habitacion = await _context.Habitaciones.FindAsync(id);
+            if (habitacion == null)
             {
                 return NotFound();
             }
-
-            return View(habitacione);
+            return Ok(habitacion);
         }
 
-        // GET: Habitacione/Create
-        public IActionResult Create()
-        {
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco");
-            return View();
-        }
-
-        // POST: Habitacione/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: api/Habitacione
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Idhabitacion,Idbarco,NumeroHabitacion,Capacidad,UbicacionHabitacion")] Habitacione habitacione)
+        public async Task<IActionResult> CreateHabitacion([FromBody] HabitacionDTO habitacionDto)
         {
+            var habitacion = _mapper.Map<Habitacion>(habitacionDto);
             if (ModelState.IsValid)
             {
-                _context.Add(habitacione);
+                _context.Habitaciones.Add(habitacion);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return CreatedAtAction(nameof(GetHabitacion), new { id = habitacion.Idhabitacion }, habitacion);
             }
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco", habitacione.Idbarco);
-            return View(habitacione);
+            return BadRequest(ModelState);
         }
 
-        // GET: Habitacione/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        // PUT: api/Habitacione/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateHabitacion(int id, [FromBody] HabitacionDTO habitacionDto)
         {
-            if (id == null || _context.Habitaciones == null)
+            var habitacion = _mapper.Map<Habitacion>(habitacionDto);
+            if (id != habitacion.Idhabitacion)
             {
-                return NotFound();
+                return BadRequest();
             }
-
-            var habitacione = await _context.Habitaciones.FindAsync(id);
-            if (habitacione == null)
-            {
-                return NotFound();
-            }
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco", habitacione.Idbarco);
-            return View(habitacione);
-        }
-
-        // POST: Habitacione/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Idhabitacion,Idbarco,NumeroHabitacion,Capacidad,UbicacionHabitacion")] Habitacione habitacione)
-        {
-            if (id != habitacione.Idhabitacion)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(habitacione);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!HabitacioneExists(habitacione.Idhabitacion))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["Idbarco"] = new SelectList(_context.Barcos, "Idbarco", "Idbarco", habitacione.Idbarco);
-            return View(habitacione);
-        }
-
-        // GET: Habitacione/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Habitaciones == null)
-            {
-                return NotFound();
-            }
-
-            var habitacione = await _context.Habitaciones
-                .Include(h => h.IdbarcoNavigation)
-                .FirstOrDefaultAsync(m => m.Idhabitacion == id);
-            if (habitacione == null)
-            {
-                return NotFound();
-            }
-
-            return View(habitacione);
-        }
-
-        // POST: Habitacione/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            if (_context.Habitaciones == null)
-            {
-                return Problem("Entity set 'noaContext.Habitaciones'  is null.");
-            }
-            var habitacione = await _context.Habitaciones.FindAsync(id);
-            if (habitacione != null)
-            {
-                _context.Habitaciones.Remove(habitacione);
-            }
-            
+            _context.Entry(habitacion).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            return NoContent();
         }
 
-        private bool HabitacioneExists(int id)
+        // DELETE: api/Habitacione/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteHabitacion(int id)
         {
-          return (_context.Habitaciones?.Any(e => e.Idhabitacion == id)).GetValueOrDefault();
+            var habitacion = await _context.Habitaciones.FindAsync(id);
+            if (habitacion == null)
+            {
+                return NotFound();
+            }
+            _context.Habitaciones.Remove(habitacion);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
