@@ -1,0 +1,53 @@
+﻿@model IEnumerable<NavieraOceanoAzul.Models.Barco>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CapacidadPersonas)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CapacidadCarga)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreBarco)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Idtiquete)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CapacidadPersonas)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CapacidadCarga)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.NombreBarco)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Idtiquete)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Idbarco">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Idbarco">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Idbarco">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
