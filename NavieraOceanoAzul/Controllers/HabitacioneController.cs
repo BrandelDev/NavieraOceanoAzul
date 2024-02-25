@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NavieraOceanoAzul.DTO;
@@ -10,6 +11,7 @@ namespace NavieraOceanoAzul.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class HabitacionController : ControllerBase
     {
         private readonly noaContext _context;
@@ -47,14 +49,14 @@ namespace NavieraOceanoAzul.Controllers
 
         // POST: api/Habitacione
         [HttpPost]
-        public async Task<IActionResult> CreateHabitacion([FromBody] HabitacionDTO habitacionDto)
+        public async Task<IActionResult> CreateHabitacion([FromBody] Habitacion habitacion)
         {
-            var habitacion = _mapper.Map<Habitacion>(habitacionDto);
+            
             if (ModelState.IsValid)
             {
                 _context.Habitaciones.Add(habitacion);
                 await _context.SaveChangesAsync();
-                return CreatedAtAction(nameof(GetHabitacion), new { id = habitacion.Idhabitacion }, habitacion);
+                return CreatedAtAction(nameof(GetHabitacion), new { id = habitacion.Idhabitaciones }, habitacion);
             }
             return BadRequest(ModelState);
         }
@@ -64,7 +66,7 @@ namespace NavieraOceanoAzul.Controllers
         public async Task<IActionResult> UpdateHabitacion(int id, [FromBody] HabitacionDTO habitacionDto)
         {
             var habitacion = _mapper.Map<Habitacion>(habitacionDto);
-            if (id != habitacion.Idhabitacion)
+            if (id != habitacion.Idhabitaciones)
             {
                 return BadRequest();
             }

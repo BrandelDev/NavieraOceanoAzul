@@ -8,5 +8,6 @@
         public string PrimerApellido { get; set; }
         public string SegundoApellido { get; set; }
         public string Email { get; set; }
+        public string Contrasena { get; set; }
     }
 }

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NavieraOceanoAzul.Models
 {
     public partial class Tiquete
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Idtiquete { get; set; }
         public string? PuertoDestino { get; set; }
         public string? PuertoOrigen { get; set; }

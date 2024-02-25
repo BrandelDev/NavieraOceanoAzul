@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NavieraOceanoAzul.DTO;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 namespace NavieraOceanoAzul.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class BarcoController : ControllerBase
     {
