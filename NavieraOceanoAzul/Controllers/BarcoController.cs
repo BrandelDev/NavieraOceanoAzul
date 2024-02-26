@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace NavieraOceanoAzul.Controllers
 {
     [Route("api/[controller]")]
-    [Authorize]
+
     [ApiController]
     public class BarcoController : ControllerBase
     {

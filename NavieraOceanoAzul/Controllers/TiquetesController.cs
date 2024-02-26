@@ -11,7 +11,6 @@ namespace NavieraOceanoAzul.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class TiquetesController : ControllerBase
     {
         private readonly noaContext _context;

@@ -38,7 +38,7 @@ namespace NavieraOceanoAzul.Controllers
         {
 
             var userSingIn = _context.Clientes.FirstOrDefault(x => x.Email == usuarioDto.Email);
-
+            if(userSingIn != null) {
             if (usuarioDto.Email == userSingIn.Email && BCrypt.Net.BCrypt.Verify(usuarioDto.password, userSingIn.Contrasena))
             {
                 var keyBytes = Encoding.ASCII.GetBytes(secretKey);
@@ -64,6 +64,7 @@ namespace NavieraOceanoAzul.Controllers
                 return StatusCode(StatusCodes.Status401Unauthorized, new { token = "" }); 
 
             }
+            }return BadRequest("Usuario no encontrado");
         }
 
         [HttpPost]

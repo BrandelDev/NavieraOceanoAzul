@@ -10,8 +10,8 @@ using System.Threading.Tasks;
 namespace NavieraOceanoAzul.Controllers
 {
     [Route("api/[controller]")]
+
     [ApiController]
-    [Authorize]
     public class ClienteController : ControllerBase
     {
         private readonly noaContext _context;

@@ -24,14 +24,7 @@ namespace NavieraOceanoAzul.Models
         public virtual DbSet<Ruta> Rutas { get; set; } = null!;
         public virtual DbSet<Tiquete> Tiquetes { get; set; } = null!;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseMySql("server=localhost;port=3306;database=noa;uid=root;password=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("5.7.44-mysql"));
-            }
-        }
+      
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -194,7 +187,9 @@ namespace NavieraOceanoAzul.Models
 
                 entity.ToTable("rutas");
 
-                entity.HasIndex(e => e.Idpuerto, "RPFK_idx");
+                entity.HasIndex(e => e.PuertoDestino, "PuertoDestinoFk_idx");
+
+                entity.HasIndex(e => e.PuertoOrigen, "PuertoOrigenFk_idx");
 
                 entity.Property(e => e.IdRutas)
                     .HasColumnType("int(11)")
@@ -212,26 +207,27 @@ namespace NavieraOceanoAzul.Models
                     .HasMaxLength(45)
                     .HasColumnName("frecuencia_ruta");
 
-                entity.Property(e => e.Idpuerto)
-                    .HasColumnType("int(11)")
-                    .HasColumnName("idpuerto");
-
                 entity.Property(e => e.Nombre)
                     .HasMaxLength(45)
                     .HasColumnName("nombre");
 
                 entity.Property(e => e.PuertoDestino)
-                    .HasMaxLength(45)
+                    .HasColumnType("int(11)")
                     .HasColumnName("puerto_destino");
 
                 entity.Property(e => e.PuertoOrigen)
-                    .HasMaxLength(45)
+                    .HasColumnType("int(11)")
                     .HasColumnName("puerto_origen");
 
-                entity.HasOne(d => d.IdpuertoNavigation)
-                    .WithMany(p => p.Ruta)
-                    .HasForeignKey(d => d.Idpuerto)
-                    .HasConstraintName("RPFK");
+                entity.HasOne(d => d.PuertoDestinoNavigation)
+                    .WithMany(p => p.RutaPuertoDestinoNavigations)
+                    .HasForeignKey(d => d.PuertoDestino)
+                    .HasConstraintName("PuertoDestinoFk");
+
+                entity.HasOne(d => d.PuertoOrigenNavigation)
+                    .WithMany(p => p.RutaPuertoOrigenNavigations)
+                    .HasForeignKey(d => d.PuertoOrigen)
+                    .HasConstraintName("PuertoOrigenFk");
             });
 
             modelBuilder.Entity<Tiquete>(entity =>

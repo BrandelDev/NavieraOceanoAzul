@@ -4,6 +4,7 @@ using NavieraOceanoAzul.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 // Importa los espacios de nombres para las anotaciones de Swagger
 
 namespace NavieraOceanoAzul.Controllers
@@ -41,6 +42,8 @@ namespace NavieraOceanoAzul.Controllers
 
             return puerto;
         }
+
+       
 
         // POST: api/Puertos
         [HttpPost]

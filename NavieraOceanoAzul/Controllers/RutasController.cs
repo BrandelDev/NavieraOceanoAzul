@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NavieraOceanoAzul.Models;
 using System.Linq;
@@ -39,6 +40,23 @@ namespace NavieraOceanoAzul.Controllers
                 return NotFound();
             }
             return Ok(ruta);
+        }
+
+        [HttpGet("GetRutasByPuerto/{puertoId}")]
+
+        public async Task<IActionResult> GetRutasByPuerto(int puertoId)
+        {
+            var puerto = await _context.Puertos.FindAsync(puertoId);
+
+            if (puerto == null)
+            {
+                return NotFound();
+            }
+
+            var rutas = await _context.Rutas
+                                    .Where(r => r.PuertoOrigen == puertoId)
+                                    .ToListAsync();
+            return Ok(rutas);
         }
 
         // POST: api/Rutas

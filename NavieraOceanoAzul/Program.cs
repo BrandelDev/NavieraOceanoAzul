@@ -18,7 +18,7 @@ builder.Services.AddCors(options => {
         .AllowAnyHeader()
         .AllowAnyMethod();
     });
-   });
+});
 
 builder.Configuration.AddJsonFile("appsettings.json");
 
@@ -29,7 +29,7 @@ var keyBytes = Encoding.UTF8.GetBytes(secretkey);
 builder.Services.AddAuthentication(config =>
 {
     config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(config => {
     config.RequireHttpsMetadata = false;
     config.SaveToken = true;
