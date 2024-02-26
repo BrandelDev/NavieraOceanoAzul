@@ -9,11 +9,7 @@ namespace NavieraOceanoAzul.Models
         [JsonPropertyName("idtiquete")]
         public int Idtiquete { get; set; }
 
-        [JsonPropertyName("puertoDestino")]
-        public string? PuertoDestino { get; set; }
 
-        [JsonPropertyName("puertoOrigen")]
-        public string? PuertoOrigen { get; set; }
 
         [JsonPropertyName("idcliente")]
         public int? Idcliente { get; set; }
@@ -32,11 +28,17 @@ namespace NavieraOceanoAzul.Models
 
         [JsonPropertyName("fechaLlegada")]
         public DateTime? FechaLlegada { get; set; }
+        [JsonPropertyName("idRuta")]
+        public int? Idruta { get; set; }
+
 
         [JsonIgnore]
         public virtual Barco? IdbarcoNavigation { get; set; }
 
         [JsonIgnore]
         public virtual Cliente? IdclienteNavigation { get; set; }
+
+        [JsonIgnore]
+        public virtual Ruta? IdrutaNavigation { get; set; }
     }
 }

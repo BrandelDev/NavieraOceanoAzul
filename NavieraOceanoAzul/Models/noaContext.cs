@@ -24,7 +24,7 @@ namespace NavieraOceanoAzul.Models
         public virtual DbSet<Ruta> Rutas { get; set; } = null!;
         public virtual DbSet<Tiquete> Tiquetes { get; set; } = null!;
 
-      
+     
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -237,6 +237,8 @@ namespace NavieraOceanoAzul.Models
 
                 entity.ToTable("tiquetes");
 
+                entity.HasIndex(e => e.Idruta, "RutaFK_idx");
+
                 entity.HasIndex(e => e.Idbarco, "idbarco_idx");
 
                 entity.HasIndex(e => e.Idcliente, "idcliente_idx");
@@ -265,17 +267,13 @@ namespace NavieraOceanoAzul.Models
                     .HasColumnType("int(11)")
                     .HasColumnName("idcliente");
 
+                entity.Property(e => e.Idruta)
+                    .HasColumnType("int(11)")
+                    .HasColumnName("idruta");
+
                 entity.Property(e => e.Precio)
                     .HasMaxLength(45)
                     .HasColumnName("precio");
-
-                entity.Property(e => e.PuertoDestino)
-                    .HasMaxLength(45)
-                    .HasColumnName("puerto_destino");
-
-                entity.Property(e => e.PuertoOrigen)
-                    .HasMaxLength(45)
-                    .HasColumnName("puerto_origen");
 
                 entity.HasOne(d => d.IdbarcoNavigation)
                     .WithMany(p => p.Tiquetes)
@@ -286,6 +284,11 @@ namespace NavieraOceanoAzul.Models
                     .WithMany(p => p.Tiquetes)
                     .HasForeignKey(d => d.Idcliente)
                     .HasConstraintName("ClienteFK");
+
+                entity.HasOne(d => d.IdrutaNavigation)
+                    .WithMany(p => p.Tiquetes)
+                    .HasForeignKey(d => d.Idruta)
+                    .HasConstraintName("RutaFK");
             });
 
             OnModelCreatingPartial(modelBuilder);
